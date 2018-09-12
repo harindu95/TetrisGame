@@ -14,6 +14,7 @@ class Board:
         self.y = y
         self.cells = []
         self.block = None
+        self.msElapsed = 0
         self.init()
         self.clock = pygame.time.Clock()
 
@@ -35,19 +36,63 @@ class Board:
 
     def init(self):
         block_color = blocks.colors[randint(0, len(blocks.colors) -1)]
-        while self.block is None or self.valid_block_state(self.block):
+        block_type = randint(0, len(blocks.types) -1)
+        start_col = randint(0, number_columns)
+        self.block = blocks.Block(block_color, start_col,0, block_type)
+
+        while not self.valid_block_state(self.block):
             start_col = randint(0, number_columns)
-            self.block = blocks.Block(block_color, start_col, 0)
+            self.block = blocks.Block(block_color, start_col,0, block_type)
 
     def update(self):
         import copy
-        msElapsed = self.clock.tick(5)
+        self.msElapsed += self.clock.tick(30)
         prev_block = copy.deepcopy(self.block)
-        if(msElapsed >= 30):
+        # if not self.block.moving:
+            # self.init()
+        if self.msElapsed >= 300:
             self.block.update()
-        blockValid = self.valid_block_state(self.block)
-        if not blockValid:
+            self.msElapsed = 0
+        if self.check_stop_moving(self.block):
+            self.cells += self.block.get_cells()
+            self.init()
+            self.clear_lines()
+        elif not self.valid_block_state(self.block):
             self.block = prev_block
+
+    def clear_lines(self):
+        number_of_cells_per_row = [0 for x in range(number_rows)]
+        for cell in self.cells:
+            number_of_cells_per_row[cell.row] += 1
+        for n in number_of_cells_per_row:
+            if n == number_columns:
+                modified = [c for c in self.cells if c.col != n]
+                self.cells = modified
+
+    def check_stop_moving(self, block):
+        for cell in block.cells:
+            cell_col = cell.col + block.col
+            cell_row = cell.row + block.row
+            for stableCell in self.cells:
+                if cell_col == stableCell.col and cell_row == (stableCell.row - 1):
+                    return True
+            if cell_row == (number_rows - 1):
+                return True
+        return False
+
+    def handle_keyboard(self, e):
+        import copy
+        prev_block = copy.deepcopy(self.block)
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_LEFT:
+                self.block.col -= 1
+            elif e.key == pygame.K_RIGHT:
+                self.block.col += 1
+            elif e.key == pygame.K_DOWN:
+                self.block.row += 5
+        if not self.valid_block_state(self.block):
+            self.block = prev_block
+
 
     def valid_block_state(self, block):
         for cell in block.cells:
@@ -55,6 +100,7 @@ class Board:
             cell_row = cell.row + block.row
             if cell_col >= number_columns or cell_col < 0:
                 return False
-            if cell_row >= number_rows or cell_row < 0:
+            if cell_row >= number_rows :
                 return False
         return True
+

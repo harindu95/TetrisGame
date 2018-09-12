@@ -31,6 +31,8 @@ def main():
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
                 running = False
+            else:
+                board.handle_keyboard(event)
     
 if __name__=="__main__":
     main()

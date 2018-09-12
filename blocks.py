@@ -111,3 +111,9 @@ class Block:
         if(self.moving):
             self.row += 1
 
+    def get_cells(self):
+        cells = []
+        for cell in self.cells:
+            c = Cell(cell.col + self.col, cell.row + self.row, self.color, 30)
+            cells.append(c)
+        return cells
