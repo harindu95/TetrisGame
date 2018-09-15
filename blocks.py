@@ -70,7 +70,9 @@ class Cell:
         self.row = row
 
     def draw(self, surface, x, y):
+        BORDER = (0,0,0)
         pygame.draw.rect(surface, self.color, [x,y, self.size, self.size])
+        pygame.draw.rect(surface, BORDER, [x,y, self.size, self.size], 2)
 
 
 class Block:

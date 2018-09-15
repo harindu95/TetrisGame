@@ -1,38 +1,33 @@
 import pygame
-import blocks
-import board
+import manager
 
-board = board.Board(60,30)
+game = manager.Manager()
+
 def draw(surface):
-    BLACK = (30, 100, 0)
-    WHITE = (255, 255, 255)
-    BLUE =  (  0,   0, 255)
-    GREEN = (  0, 255,   0)
-    RED =   (255,   0,   0)
-    surface.fill(WHITE)
-     # This draws a triangle using the polygon command
-    board.draw(surface)
+    BLACK = (30, 30, 30)
+    surface.fill(BLACK)
+    game.draw(surface)
     pygame.display.update()
 
 def main():
-    
     pygame.init()
     pygame.display.set_caption("Tetris")
-    
-    screen = pygame.display.set_mode((600,800))
-    
+    screen = pygame.display.set_mode((600,700))
     running = True
-    # main loop
+    clock = pygame.time.Clock()
+    msElapesd = 0
     while running:
+        msElapesd = clock.tick(60)
         draw(screen)
-        # event handling, gets all event from the eventqueue
+        game.update(msElapesd)
+        # event handling , gets all event from the eventqueue
         for event in pygame.event.get():
             # only do something if the event is of type QUIT
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
                 running = False
             else:
-                board.handle_keyboard(event)
+                game.handle_events(event)
     
 if __name__=="__main__":
     main()
